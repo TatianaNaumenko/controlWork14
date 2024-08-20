@@ -5,12 +5,12 @@
 
 const fullName = document.querySelector(".full-name input");
 const mailInp = document.querySelector(".mail input");
-const errorBlocksLoginPage = document.querySelectorAll('.error-login-page');
 const userName = document.querySelector(".username input");
 const check = document.getElementById("check");
 const inputs = document.querySelectorAll(
   ".form div input:not(#check):not(#btn)"
 );
+
 const passwordInp = document.querySelector(".password input");
 const passwordReapetInp = document.querySelector(".password-repeat input");
 const popap = document.getElementById("popap");
@@ -18,12 +18,12 @@ const btn = document.getElementById("btn");
 const agreeLink = document.querySelector(".already-have-account a");
 let clients;
 // создание блоков для вывода error message
-const parentBlocksDiv = document.querySelectorAll('.form div:not(.agreement):not(.button):not(.password-repeat)');
+const parentBlocksDiv = document.querySelectorAll('.form div:not(.agreement):not(.button)');
 
-for(let elem of [...parentBlocksDiv]) {
-let divError = document.createElement('div');
-divError.classList.add('valid-error');
-elem.appendChild(divError)
+for (let elem of [...parentBlocksDiv]) {
+  let divError = document.createElement('div');
+  divError.classList.add('valid-error');
+  elem.appendChild(divError)
 }
 const errorBlocks = document.querySelectorAll('.valid-error');
 
@@ -33,33 +33,49 @@ function setError(element, errorIndex, message) {
   element.classList.add('input-error');
   errorBlocks[errorIndex].style.display = 'block';
   errorBlocks[errorIndex].textContent = message;
+
 }
 // функция удаление ошибки
 function clearError(element, errorIndex) {
   element.classList.remove('input-error');
   errorBlocks[errorIndex].style.display = 'none';
   errorBlocks[errorIndex].textContent = '';
+
 }
 // валидация поля FULL NAME
 function noDigits(event) {
   if ("1234567890".includes(event.key)) {
     event.preventDefault();
   }
- 
+
 }
-function isValidFullName(){
-  let regExp = /^[A-ZА-ЯЁ][a-zа-яё]+\s[A-ZА-ЯЁ][a-zа-яё]+$/;
-  if(!regExp.test(fullName.value)) {
-   setError(fullName, 0, 'Full Name может содержать только буквы и пробел и начинаться с заглавной буквы');
-                      
-   } else {
+function isValidFullName() {
+  let regExp = /^[A-ZА-ЯЁ][a-zа-яё]*\s[A-ZА-ЯЁ][a-zа-яё]*$/i;
+  if (!regExp.test(fullName.value)) {
+    setError(fullName, 0, 'Full Name может содержать только буквы и пробел и начинаться с заглавной буквы');
+return false
+  } else {
     clearError(fullName, 0);
+    return true
   }
+}
+// функция перевода первых букв в заглавные 
+function capitalizeName(input) {
+
+  const words = input.value.trim().split(' ');
+
+  const capitalizedWords = words.map(word => {
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  });
+
+  input.value = capitalizedWords.join(' ');
 }
 
 fullName.addEventListener("keydown", noDigits);
 fullName.addEventListener('blur', isValidFullName);
-
+fullName.addEventListener('blur', function(){
+  capitalizeName(fullName);
+});
 // валидация поля UserName
 
 
@@ -72,10 +88,12 @@ function noPunctMarks(event) {
 
 function isValidUserName() {
   let regExp = /^[\w\d _-]+$/i;
-  if(!regExp.test(userName.value)) {
-   setError(userName, 1,'username может содержать только латинские буквы, цифры, символ подчеркивания и тире');
-  }else {
- clearError(userName, 1);
+  if (!regExp.test(userName.value)) {
+    setError(userName, 1, 'username может содержать только латинские буквы, цифры, символ подчеркивания и тире');
+    return false
+  } else {
+    clearError(userName, 1);
+    return true
   }
 
 }
@@ -86,40 +104,43 @@ userName.addEventListener('blur', isValidUserName);
 
 function isValidEmail() {
   let regExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-   if (!regExp.test(mailInp.value)) {
-setError(mailInp, 2, 'Адрес электронной почты не является валидным');
+  if (!regExp.test(mailInp.value)) {
+    setError(mailInp, 2, 'Адрес электронной почты не является валидным');
+    return false;
   } else {
-  clearError(mailInp,2);
-}
+    clearError(mailInp, 2);
+    return true
+  }
 }
 mailInp.addEventListener("blur", isValidEmail);
 
 // валидация полей пароля
-function isValidPassword(){
-  let regExp =  /^(?=.*[A-Z]+)(?=.*[0-9]+)(?=.*[\W_]+).{8,}$/;
-   if (!regExp.test(passwordInp.value)) {
-setError(passwordInp, 3, 'Пароль должен содержать - хотя бы одна буква в верхнем регистре, хотя бы одна цифра, хотя бы один спецсимвол');
- } else {
- clearError(passwordInp, 3);
-}
+function isValidPassword() {
+  let regExp = /^(?=.*[A-Z]+)(?=.*[0-9]+)(?=.*[\W_]+).{8,}$/;
+  if (!regExp.test(passwordInp.value)) {
+    setError(passwordInp, 3, 'Пароль должен содержать не менее 8 символов - хотя бы одна буква в верхнем регистре, хотя бы одна цифра, хотя бы один спецсимвол');
+    return false
+  } else {
+    clearError(passwordInp, 3);
+    return true;
+  }
 }
 passwordInp.addEventListener('blur', isValidPassword);
 
 const passwordHide = document.getElementById('password-hide');
 const passwordView = document.getElementById('password-view');
 
-// 
 // функция просмотра пароля Добавляем обработчик события на ссылку
 passwordHide.addEventListener('click', showParole);
 passwordView.addEventListener('click', showParole);
 function showParole(event) {
   event.preventDefault();
-  
-  if ( passwordInp.type === 'password') {
-      passwordInp.type = 'text';
-      passwordHide.style.display = 'none';
-      passwordView.style.display = 'inline-block';
-   } else {
+
+  if (passwordInp.type === 'password') {
+    passwordInp.type = 'text';
+    passwordHide.style.display = 'none';
+    passwordView.style.display = 'inline-block';
+  } else {
     passwordInp.type = 'password';
     passwordView.style.display = 'none';
     passwordHide.style.display = 'inline-block';
@@ -147,19 +168,25 @@ function checkForSuccess(event) {
   event.preventDefault();
   let allConditions = true;
 
-  inputs.forEach((input) => {
-    let inpVal = input.value;
-    let prompt = input.previousElementSibling.textContent;
-    if (!inpVal) {
-      alert(`Заполните поле ${prompt}.`);
-      allConditions = false;
-    }
-  });
+  isValidFullName()
+  isValidEmail();
+  isValidPassword();
+  isValidUserName();
+
+  if (!isValidEmail() || !isValidPassword() || !isValidFullName() || !isValidUserName()) {
+    return; // Прерываем отправку формы, если поля не валидны
+
+  }
+
+
 
 
   if (passwordInp.value !== passwordReapetInp.value) {
-    alert("Пароли не совпадают!");
+ setError( passwordReapetInp, 4, 'Пароли не совпадают');
     allConditions = false;
+  }else {
+    clearError(passwordReapetInp, 4);
+    allConditions = true;
   }
 
   if (!check.checked) {
@@ -175,19 +202,19 @@ function checkForSuccess(event) {
     let btnPopap = document.getElementById("btn-in-popap");
     btnPopap.addEventListener("click", getLoginPage);
     // запись данных пользователя в объект LocaleStorage после проверки валидации полей инпутов
-let user = {
-  name: fullName.value,
-  email: mailInp.value,
-  userName: userName.value,
-  password: passwordInp.value
-}
+    let user = {
+      name: fullName.value,
+      email: mailInp.value,
+      userName: userName.value,
+      password: passwordInp.value
+    }
 
-clients = JSON.parse(localStorage.getItem('clients')) || [];
-clients.push(user);
-localStorage.setItem('clients', JSON.stringify(clients));
-  }
+    clients = JSON.parse(localStorage.getItem('clients')) || [];
+    clients.push(user);
+    localStorage.setItem('clients', JSON.stringify(clients));
+  } 
 
-  
+
 }
 //кнопки навешено событие проверки валидации и вызов попаппа и запись в LocaleStorage
 btn.addEventListener("click", checkForSuccess);
@@ -223,8 +250,8 @@ function getLoginPage() {
   document.querySelector(".agreement").remove();
   agreeLink.textContent = 'Registration';
   agreeLink.style.paddingLeft = '183px'
-  agreeLink.addEventListener('click',function(){
-    window.location.reload(); 
+  agreeLink.addEventListener('click', function () {
+    window.location.reload();
   })
 
 
@@ -237,18 +264,18 @@ agreeLink.addEventListener("click", getLoginPage);
 // -------------функция проверки инпутов на странице Входа--
 function isValidLoginPageInput() {
 
-if (!userName.value) {
+  if (!userName.value) {
 
-setError(userName, 1, 'Заполните поле');
-} else {
-clearError(userName,1);
-}
-if (!passwordInp.value) { 
+    setError(userName, 1, 'Заполните поле');
+  } else {
+    clearError(userName, 1);
+  }
+  if (!passwordInp.value) {
 
-setError(passwordInp, 3, 'Заполните поле');
-}else {
-  clearError(passwordInp, 3);
-}
+    setError(passwordInp, 3, 'Заполните поле');
+  } else {
+    clearError(passwordInp, 3);
+  }
 
 
 }
@@ -261,30 +288,30 @@ function isValidEnter() {
   let userNameValue = userName.value;
   let passwordValue = passwordInp.value;
   let isValidUser = false;
- let userFullName;// пустая пременная она понесет имя юзера в другую функцию
+  let userFullName;// пустая пременная она понесет имя юзера в другую функцию
   if (userNameValue && passwordValue) {
     clients = JSON.parse(localStorage.getItem('clients')) || [];
 
-      for (let obj of clients) {
-          if (obj.userName === userNameValue) {
-              if (obj.password === passwordValue) {
-                userFullName = obj.name; //здесь когда все условия совпадут в переменную запишется имя юзера
-                  isValidUser = true;
-                  break;
-              } else {
-             setError(passwordInp, 3,'Неверный пароль');
-                  return;
-              }
-          }
+    for (let obj of clients) {
+      if (obj.userName === userNameValue) {
+        if (obj.password === passwordValue) {
+          userFullName = obj.name; //здесь когда все условия совпадут в переменную запишется имя юзера
+          isValidUser = true;
+          break;
+        } else {
+          setError(passwordInp, 3, 'Неверный пароль');
+          return;
+        }
       }
+    }
 
-      if (!isValidUser) {
-        
-setError(userName, 1, 'Такой пользователь не зарегистрирован')
-      } else {
-                btn.removeEventListener('click', isValidEnter);
-          btn.addEventListener('click', logInPersonalAccount(userFullName));
-      }
+    if (!isValidUser) {
+
+      setError(userName, 1, 'Такой пользователь не зарегистрирован')
+    } else {
+      btn.removeEventListener('click', isValidEnter);
+      btn.addEventListener('click', logInPersonalAccount(userFullName));
+    }
   }
 }
 
@@ -307,13 +334,13 @@ function logInPersonalAccount(userFullName) {
 
   // Удаляем обработчик события и добавляем новый
   btn.removeEventListener('click', logInPersonalAccount);
-  btn.addEventListener('click', function(e){
-      e.preventDefault();
-      location.reload();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    location.reload();
   });
 }
 
 
 
 
-// localStorage.clear();
+localStorage.clear();
