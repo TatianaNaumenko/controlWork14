@@ -25,21 +25,24 @@ for (let elem of [...parentBlocksDiv]) {
   divError.classList.add('valid-error');
   elem.appendChild(divError)
 }
-const errorBlocks = document.querySelectorAll('.valid-error');
 
 
 // функция установки ошибки
-function setError(element, errorIndex, message) {
+function setError(element, message) {
+  let parentElem = element.parentElement;
+  let errorBlock = parentElem.querySelector('.valid-error');
   element.classList.add('input-error');
-  errorBlocks[errorIndex].style.display = 'block';
-  errorBlocks[errorIndex].textContent = message;
+  errorBlock.style.display = 'block';
+  errorBlock.textContent = message;
 
 }
 // функция удаление ошибки
-function clearError(element, errorIndex) {
+function clearError(element) {
+  let parentElem = element.parentElement;
+  let errorBlock = parentElem.querySelector('.valid-error');
   element.classList.remove('input-error');
-  errorBlocks[errorIndex].style.display = 'none';
-  errorBlocks[errorIndex].textContent = '';
+  errorBlock.style.display = 'none';
+  errorBlock.textContent = '';
 
 }
 // валидация поля FULL NAME
@@ -52,10 +55,10 @@ function noDigits(event) {
 function isValidFullName() {
   let regExp = /^[A-ZА-ЯЁ][a-zа-яё]*\s[A-ZА-ЯЁ][a-zа-яё]*$/i;
   if (!regExp.test(fullName.value)) {
-    setError(fullName, 0, 'Full Name может содержать только буквы и пробел и начинаться с заглавной буквы');
-return false
+    setError(fullName, 'Full Name может содержать только буквы и пробел и начинаться с заглавной буквы');
+    return false
   } else {
-    clearError(fullName, 0);
+    clearError(fullName);
     return true
   }
 }
@@ -73,7 +76,7 @@ function capitalizeName(input) {
 
 fullName.addEventListener("keydown", noDigits);
 fullName.addEventListener('blur', isValidFullName);
-fullName.addEventListener('blur', function(){
+fullName.addEventListener('blur', function () {
   capitalizeName(fullName);
 });
 // валидация поля UserName
@@ -89,10 +92,10 @@ function noPunctMarks(event) {
 function isValidUserName() {
   let regExp = /^[\w\d _-]+$/i;
   if (!regExp.test(userName.value)) {
-    setError(userName, 1, 'username может содержать только латинские буквы, цифры, символ подчеркивания и тире');
+    setError(userName, 'username может содержать только латинские буквы, цифры, символ подчеркивания и тире');
     return false
   } else {
-    clearError(userName, 1);
+    clearError(userName);
     return true
   }
 
@@ -105,10 +108,10 @@ userName.addEventListener('blur', isValidUserName);
 function isValidEmail() {
   let regExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!regExp.test(mailInp.value)) {
-    setError(mailInp, 2, 'Адрес электронной почты не является валидным');
+    setError(mailInp, 'Адрес электронной почты не является валидным');
     return false;
   } else {
-    clearError(mailInp, 2);
+    clearError(mailInp);
     return true
   }
 }
@@ -118,10 +121,10 @@ mailInp.addEventListener("blur", isValidEmail);
 function isValidPassword() {
   let regExp = /^(?=.*[A-Z]+)(?=.*[0-9]+)(?=.*[\W_]+).{8,}$/;
   if (!regExp.test(passwordInp.value)) {
-    setError(passwordInp, 3, 'Пароль должен содержать не менее 8 символов - хотя бы одна буква в верхнем регистре, хотя бы одна цифра, хотя бы один спецсимвол');
+    setError(passwordInp, 'Пароль должен содержать не менее 8 символов - хотя бы одна буква в верхнем регистре, хотя бы одна цифра, хотя бы один спецсимвол');
     return false
   } else {
-    clearError(passwordInp, 3);
+    clearError(passwordInp);
     return true;
   }
 }
@@ -164,10 +167,8 @@ check.addEventListener("change", function (e) {
 
 // _____________________проверка успешно заполненной формы и вызов попаппа
 function checkForSuccess(event) {
-
   event.preventDefault();
   let allConditions = true;
-
   isValidFullName()
   isValidEmail();
   isValidPassword();
@@ -178,14 +179,11 @@ function checkForSuccess(event) {
 
   }
 
-
-
-
   if (passwordInp.value !== passwordReapetInp.value) {
- setError( passwordReapetInp, 4, 'Пароли не совпадают');
+    setError(passwordReapetInp, 'Пароли не совпадают');
     allConditions = false;
-  }else {
-    clearError(passwordReapetInp, 4);
+  } else {
+    clearError(passwordReapetInp);
     allConditions = true;
   }
 
@@ -212,14 +210,12 @@ function checkForSuccess(event) {
     clients = JSON.parse(localStorage.getItem('clients')) || [];
     clients.push(user);
     localStorage.setItem('clients', JSON.stringify(clients));
-  } 
+  }
 
 
 }
 //кнопки навешено событие проверки валидации и вызов попаппа и запись в LocaleStorage
 btn.addEventListener("click", checkForSuccess);
-
-
 
 // -------------------функция закрывающая попапп
 function closePopap() {
@@ -231,6 +227,7 @@ function getLoginPage() {
   closePopap();
   check.checked = false;
   inputs.forEach((input) => {
+    clearError(input);
     input.value = "";
     let inpName = input.parentElement.className;
     if (
@@ -266,15 +263,15 @@ function isValidLoginPageInput() {
 
   if (!userName.value) {
 
-    setError(userName, 1, 'Заполните поле');
+    setError(userName, 'Заполните поле');
   } else {
-    clearError(userName, 1);
+    clearError(userName);
   }
   if (!passwordInp.value) {
 
-    setError(passwordInp, 3, 'Заполните поле');
+    setError(passwordInp, 'Заполните поле');
   } else {
-    clearError(passwordInp, 3);
+    clearError(passwordInp);
   }
 
 
@@ -299,7 +296,7 @@ function isValidEnter() {
           isValidUser = true;
           break;
         } else {
-          setError(passwordInp, 3, 'Неверный пароль');
+          setError(passwordInp, 'Неверный пароль');
           return;
         }
       }
@@ -307,7 +304,7 @@ function isValidEnter() {
 
     if (!isValidUser) {
 
-      setError(userName, 1, 'Такой пользователь не зарегистрирован')
+      setError(userName, 'Такой пользователь не зарегистрирован')
     } else {
       btn.removeEventListener('click', isValidEnter);
       btn.addEventListener('click', logInPersonalAccount(userFullName));
@@ -343,4 +340,4 @@ function logInPersonalAccount(userFullName) {
 
 
 
-localStorage.clear();
+// localStorage.clear();
